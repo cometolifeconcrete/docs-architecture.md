@@ -12,8 +12,20 @@ async function ccGet(path, apiKey) {
 }
 
 function safeProjectName(project) {
-  // Project name is useful internally for review; deliberately omit address/customer/location fields.
   return project?.name || project?.title || null;
+}
+
+function photoPreview(photo) {
+  // CompanyCam returns `uris` as an array of { type, uri, url } records.
+  const uris = Array.isArray(photo?.uris) ? photo.uris : [];
+  const preferred = ['web', 'medium', 'large', 'thumbnail', 'thumb', 'original'];
+  for (const type of preferred) {
+    const match = uris.find((item) => String(item?.type || '').toLowerCase() === type);
+    if (match?.url) return match.url;
+    if (match?.uri) return match.uri;
+  }
+  const first = uris.find((item) => item?.url || item?.uri);
+  return first?.url || first?.uri || photo?.photo_url || null;
 }
 
 export default {
@@ -38,7 +50,7 @@ export default {
       ]);
 
       const project = projectPayload?.data || projectPayload;
-      const availableTags = Array.isArray(tagPayload?.data) ? tagPayload.data.map((t) => ({ id: t.id, name: t.display_value || t.value })) : [];
+      const availableTags = Array.isArray(tagPayload?.data) ? tagPayload.data.map((t) => ({ id: String(t.id), name: t.display_value || t.value })) : [];
       const photos = Array.isArray(photoPayload?.data) ? photoPayload.data : [];
 
       const candidates = photos.map((photo, index) => ({
@@ -47,7 +59,7 @@ export default {
         photo_id: String(photo.id),
         captured_at: photo.captured_at || photo.created_at || null,
         sequence_index: index,
-        preview_url: photo.uris?.web || photo.uris?.thumbnail || null,
+        preview_url: photoPreview(photo),
         existing_tags: [],
         suggestions: [],
         review_status: 'Unreviewed',
