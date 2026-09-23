@@ -1,6 +1,6 @@
-# CSK-001 — Project audit
+# CSK-001 — SealYourConcrete.com project audit
 
-This public repository is the confirmed home for the Concrete Sealing Kit build. The detailed infrastructure and connection audit is maintained outside this public repository.
+This public repository is the confirmed home for the SealYourConcrete.com build. The detailed infrastructure and connection audit is maintained outside this public repository. The earlier working name was Concrete Sealing Kit.
 
 ## Audit scope
 
