@@ -26,14 +26,14 @@ export default async function handler(req,res){
     if(!b.project_id) return send(res,400,{ok:false,error:'project_id is required'});
     if(!['reviewed','skipped'].includes(status)) return send(res,400,{ok:false,error:'Invalid status'});
     if(status==='reviewed'){
-      if(!validProjectType(b.project_type)) return send(res,400,{ok:false,error:'Choose a project type'},400);
+      if(!validProjectType(b.project_type)) return send(res,400,{ok:false,error:'Choose a project type'});
       if(!validSurface(b.surface_type)) return send(res,400,{ok:false,error:'Choose a surface type'});
       if(!b.before_photo_id||!b.after_photo_id) return send(res,400,{ok:false,error:'Choose one Before and one After'});
       if(String(b.before_photo_id)===String(b.after_photo_id)) return send(res,400,{ok:false,error:'Before and After must be different'});
     }
     if(b.project_type!=null&&!validProjectType(b.project_type)) return send(res,400,{ok:false,error:'Invalid project type'});
     if(!validTreatments(b.treatment_tags||[])) return send(res,400,{ok:false,error:'Invalid treatment tag'});
-    const row={project_id:String(b.project_id),project_name:b.project_name||null,project_type:b.project_type||null,surface_type:b.surface_type||null,treatment_tags:b.treatment_tags||[],before_photo_id:b.before_photo_id?String(b.before_photo_id):null,after_photo_id:b.after_photo_id?String(b.after_photo_id):null,glam_photo_ids:(b.glam_photo_ids||[]).map(String),status,reviewed_at:new Date().toISOString(),updated_at:new Date().toISOString()};
+    const row={project_id:String(b.project_id),project_name:b.project_name||null,project_date:b.project_date||null,project_type:b.project_type||null,surface_type:b.surface_type||null,treatment_tags:b.treatment_tags||[],before_photo_id:b.before_photo_id?String(b.before_photo_id):null,after_photo_id:b.after_photo_id?String(b.after_photo_id):null,glam_photo_ids:(b.glam_photo_ids||[]).map(String),status,reviewed_at:new Date().toISOString(),updated_at:new Date().toISOString()};
     const r=await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?on_conflict=project_id`,{method:'POST',headers:{...headers(),'Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify(row)});
     const out=await r.json(); if(!r.ok) return send(res,r.status,{ok:false,error:out});
     return send(res,200,{ok:true,review:out[0]||row});
